@@ -12,14 +12,17 @@ export default class App extends React.Component {
 			width: 0,
 			height: 0,
 			cells: []
-		}
+		},
+		currentTeam: -1,
+		selectedCell: { x: -1, y: -1 }
 	}
 
 	componentDidMount() {
 		this.props.socket.on("getAllGameData", data => {
 			this.setState({
 				teams: data.teams,
-				map: data.map
+				map: data.map,
+				currentTeam: data.team,
 			})
 		})
 
@@ -55,9 +58,19 @@ export default class App extends React.Component {
 		return this.state.map.cells[x + y * this.state.map.width]
 	}
 
+	handleCellSelected = location => {
+		this.setState({
+			selectedCell: location
+		})
+	}
+
+	handleCellAttackSelected = location => {
+		
+	}
+
 	render() {
 		const renderCellLines = this.state.map.cells.map((cell, index) => {
-			if(cell == null) return
+			if (cell == null) return
 
 			const x = index % this.state.map.width
 			const y = Math.floor(index / this.state.map.height)
@@ -66,12 +79,22 @@ export default class App extends React.Component {
 		})
 
 		const renderCells = this.state.map.cells.map((cell, index) => {
-			if(cell == null) return
+			if (cell == null) return
 
 			const x = index % this.state.map.width
 			const y = Math.floor(index / this.state.map.height)
 
-			return <Cell key={x + "-" + y} x={x} y={y} cell={cell} team={this.state.teams[cell.team]} />
+			return <Cell
+				key={x + "-" + y}
+				x={x}
+				y={y}
+				cell={cell}
+				team={this.state.teams[cell.team]}
+				currentTeam={this.state.currentTeam}
+				onCellSelected={this.handleCellSelected}
+				selectedCell={this.state.selectedCell}
+				onCellAttackSelected={this.handleCellAttackSelected}
+			/>
 		})
 
 		return (

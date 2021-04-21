@@ -60,6 +60,7 @@ io.on("connection", newSocket => {
                         color: "red"
                     }
                 ],
+                players: [],
                 map: {
                     width: 10,
                     height: 10,
@@ -67,11 +68,17 @@ io.on("connection", newSocket => {
                 }
             }
 
+            for(let i = 0; i < matchmadeSockets.length; i++){
+                games[newGameId].players.push({
+                    team: 1
+                })
+            }
+
             const cellsForTeams = []
 
             for (let y = 0; y < games[newGameId].map.height; y++) {
                 for (let x = 0; x < games[newGameId].map.width; x++) {
-                    if (Math.random() < 0.7) {
+                    if (Math.random() < 1) {
                         const cellIndex = x + y * games[newGameId].map.width
                         games[newGameId].map.cells[cellIndex] = {
                             maxSize: 8,
@@ -94,11 +101,12 @@ io.on("connection", newSocket => {
                 insertCell.size = 1
             }
 
-            matchmadeSockets.forEach(socket => {
+            matchmadeSockets.forEach((socket, index) => {
                 socket.gameId = newGameId
                 socket.socket.emit("getAllGameData", {
                     teams: games[newGameId].teams,
-                    map: games[newGameId].map
+                    map: games[newGameId].map,
+                    team: games[newGameId].players[index].team,
                 })
             })
         }
